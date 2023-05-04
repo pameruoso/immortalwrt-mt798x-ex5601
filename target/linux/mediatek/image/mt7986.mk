@@ -385,3 +385,40 @@ define Device/xiaomi_redmi-router-ax6000-stock
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
 endef
 TARGET_DEVICES += xiaomi_redmi-router-ax6000-stock
+
+define Device/mt7986a-ax6000-2500wan-spim-nand-ex5601t0
+  DEVICE_VENDOR := MediaTek
+  DEVICE_MODEL := mt7986a-ax6000-2500wan-spim-nand-ex5601t0
+  DEVICE_DTS := mt7986a-2500wan-spim-nand-rfb-ex5601t0
+  DEVICE_DTS_DIR := $(DTS_DIR)/mediatek
+  SUPPORTED_DEVICES := mediatek,mt7986a-2500wan-spim-snand-rfb
+  UBINIZE_OPTS := -E 5
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  IMAGE_SIZE := 65536k
+  KERNEL_IN_UBI := 1
+  IMAGES += factory.bin
+  IMAGE/factory.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += mt7986a-ax6000-2500wan-spim-nand-ex5601t0
+
+define Device/ex5601-t0
+  DEVICE_VENDOR := ZYXEL
+  DEVICE_MODEL := ex5601-t0 (SPI-NAND,UBI)
+  DEVICE_DTS := mt7986a-2500wan-spim-nand-rfb-ex5601t0
+  DEVICE_DTS_DIR := $(DTS_DIR)/mediatek
+  SUPPORTED_DEVICES := mediatek,mt7986a-2500wan-spim-snand-rf
+  UBINIZE_OPTS := -E 5
+  BLOCKSIZE := 256k
+  PAGESIZE := 4096
+  IMAGE_SIZE := 65536k
+  KERNEL_IN_UBI := 1
+  IMAGES := zyfwinfo.bin zydefault.bin sysupgrade.bin factory.bin factory_TE.bin
+  IMAGE/zyfwinfo.bin := gen-zyfwinfo
+  IMAGE/zydefault.bin := gen-zydefault
+  IMAGE/factory.bin := append-zyubi | check-size $$$$(IMAGE_SIZE)
+  IMAGE/factory_TE.bin := append-zyubi-te | check-size $$$$(IMAGE_SIZE)
+  IMAGE/sysupgrade.bin := sysupgrade-zytar | append-zymetadata
+endef
+TARGET_DEVICES += ex5601-t0
