@@ -17,16 +17,15 @@
 		reg = <0 0x40000000 0 0x10000000>;
 	};
 
-	sound_si3218x {
-		compatible = "mediatek,mt79xx-si3218x-machine";
+	sound {
+		compatible = "mediatek,mt7986-wm8960-machine";
 		mediatek,platform = <&afe>;
-		/* mediatek,ext-codec = <&proslic_spi>; */
-		mediatek,ext-codec = <&dummy_codec>;
+		audio-routing = "Headphone", "HP_L",
+				"Headphone", "HP_R",
+				"LINPUT1", "AMIC",
+				"RINPUT1", "AMIC";
+		mediatek,audio-codec = <&wm8960>;
 		status = "okay";
-	};
-
-	dummy_codec:dummy_codec {
-			compatible = "d2,slic-dummy-codec";
 	};
 
 	gpio-keys {
@@ -55,13 +54,13 @@
 
 		led_green_wifi24g {
 			label = "zyled-green-wifi24g";
-			gpios = <&pio 1 GPIO_ACTIVE_HIGH>;
+			gpios = <&pio 1 GPIO_ACTIVE_LOW>;
 			default-state = "off";
 		};
 
 		led_green_wifi5g {
 			label = "zyled-green-wifi5g";
-			gpios = <&pio 2 GPIO_ACTIVE_HIGH>;
+			gpios = <&pio 2 GPIO_ACTIVE_LOW>;
 			default-state = "off";
 		};
 
@@ -161,6 +160,11 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c_pins>;
 	status = "okay";
+
+	wm8960: wm8960@1a {
+		compatible = "wlf,wm8960";
+		reg = <0x1a>;
+	};
 };
 
 &auxadc {
