@@ -479,5 +479,3 @@ define Build/zyxel-ras-image
 			$(if $(findstring separate-kernel,$(word 1,$(1))),-k $(IMAGE_KERNEL)) \
 		&& mv $@.new $@
 endef
-
-include $(INCLUDE_DIR)/image-zycommands.mk
