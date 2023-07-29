@@ -345,6 +345,23 @@ define Device/qcom_ipq8064-db149
 endef
 TARGET_DEVICES += qcom_ipq8064-db149
 
+define Device/ruijie_rg-mtfi-m520
+	DEVICE_VENDOR := Ruijie
+	DEVICE_MODEL := RG-MTFi-M520
+	SOC := qcom-ipq8064
+	BLOCKSIZE := 64k
+	KERNEL_SIZE := 4096k
+	KERNEL_SUFFIX := -uImage
+	KERNEL = kernel-bin | append-dtb | uImage none | pad-to $$(KERNEL_SIZE)
+	KERNEL_NAME := zImage
+	IMAGES += factory.bin
+	IMAGE/factory.bin := qsdk-ipq-factory-mmc
+	IMAGE/sysupgrade.bin/squashfs := append-rootfs | pad-to $$$$(BLOCKSIZE) | sysupgrade-tar rootfs=$$$$@ | append-metadata
+	DEVICE_PACKAGES := ath10k-firmware-qca988x-ct e2fsprogs kmod-hwmon-lm75 \
+		kmod-fs-f2fs kmod-rtc-pcf8563 losetup mkf2fs
+endef
+TARGET_DEVICES += ruijie_rg-mtfi-m520
+
 define Device/tplink_ad7200
 	$(call Device/TpSafeImage)
 	DEVICE_VENDOR := TP-Link
@@ -418,7 +435,7 @@ define Device/xiaomi_mi-router-hd
 	UBINIZE_OPTS := -E 5
 	IMAGES := factory.bin sysupgrade.bin
 	IMAGE/factory.bin := append-kernel | pad-to $$$$(KERNEL_SIZE) | append-ubi | pad-to $$$$(BLOCKSIZE) | check-size
-	DEVICE_PACKAGES := kmod-i2c-gpio kmod-hwmon-lm75 hwmon-drivetemp \
+	DEVICE_PACKAGES := kmod-i2c-gpio kmod-hwmon-emc2305 kmod-hwmon-lm75 hwmon-drivetemp \
 		kmod-usb-storage-uas ath10k-firmware-qca9984-ct ath10k-firmware-qca99x0-ct
 endef
 TARGET_DEVICES += xiaomi_mi-router-hd

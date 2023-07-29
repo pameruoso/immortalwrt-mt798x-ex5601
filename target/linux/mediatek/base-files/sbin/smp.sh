@@ -714,10 +714,13 @@ setup_model()
 		MT7986_whnat $num_of_wifi
 		;;
 	*mt3000* |\
-	*x3000* |\
+	glinet,x3000-emmc |\
 	*xe3000* |\
-	*mt2500* |\	
+	*mt2500* |\
+	*zr-3020* |\
 	*360,t7* |\
+	xiaomi,mi-router-wr30u* |\
+	*rax3000m* |\
 	*7981*)
 		MT7981_whnat $num_of_wifi
 		;;

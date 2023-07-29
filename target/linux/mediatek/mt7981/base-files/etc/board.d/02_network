@@ -22,16 +22,41 @@ mediatek_setup_interfaces()
 	*2500wan-p5*)
 		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3 lan4" wan
 		;;
+	xiaomi,mi-router-wr30u*)
+		ucidef_set_interfaces_lan_wan "eth0" "eth1"
+		ucidef_add_switch "switch0" \
+			"1:lan" "2:lan" "3:lan" "0:wan" "6u@eth0" "5u@eth1"
+		;;
 	*360,t7*)
 		ucidef_set_interfaces_lan_wan "eth0" "eth1"
 		ucidef_add_switch "switch0" \
 			"0:lan" "1:lan" "2:lan" "3:wan" "6u@eth0" "5u@eth1"
 		;;
+	*cetron,ct3003*)
+		ucidef_set_interfaces_lan_wan "eth0.1" "eth0.2"
+		ucidef_add_switch "switch0" \
+			"0:lan" "1:lan" "2:lan" "3:wan" "6t@eth0"
+		;;
+	*jcg,q30*)
+		ucidef_set_interfaces_lan_wan "eth0.1" "eth0.2"
+		ucidef_add_switch "switch0" \
+			"1:lan" "2:lan" "3:lan" "0:wan" "6t@eth0"
+		;;
+	*rax3000m*)
+		ucidef_set_interfaces_lan_wan "eth0" "eth1"
+		ucidef_add_switch "switch0" \
+			"0:lan" "1:lan" "2:lan" "6u@eth0"
+		;;
 	*mt3000* |\
-	*x3000* |\
+	glinet,x3000-emmc |\
 	*xe3000* |\
 	*mt2500*)
 		ucidef_set_interfaces_lan_wan "eth1" "eth0"
+		;;
+	*zr-3020*)
+		ucidef_set_interfaces_lan_wan "eth0" "eth1"
+		ucidef_add_switch "switch0" \
+			"2:lan" "3:lan" "4:lan" "0:wan" "6u@eth0" "5u@eth1"
 		;;
 	*)
 		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3 lan4" eth1
@@ -82,9 +107,6 @@ mediatek_setup_macs()
 	local lan_mac_offset="0x2A"
 	local wan_mac_offset="0x24"
 
-	lan_mac=$(mtd_get_mac_binary $part_name $lan_mac_offset)
-	wan_mac=$(mtd_get_mac_binary $part_name $wan_mac_offset)
-
 	case $board in
 	*mt3000*)
 		wan_mac=$(mtd_get_mac_binary $part_name 0x0a)
@@ -95,9 +117,21 @@ mediatek_setup_macs()
 		lan_mac=$(macaddr_add "$wan_mac" 1)
 		;;
 	*xe3000*|\
-	*x3000*)
+	glinet,x3000-emmc)
 		wan_mac=$(get_mac_binary /dev/mmcblk0p3 0x0a)
 		lan_mac=$(macaddr_add "$wan_mac" 1)
+		;;
+	*zr-3020*)
+		wan_mac=$(mtd_get_mac_ascii config2 wanmac)
+		lan_mac=$(mtd_get_mac_ascii config2 lanmac)
+		if [ "$(mtk_factory_get_byte Factory 4 2)" = "00-0c" ]; then
+			local wifi_mac="$(mtd_get_mac_ascii config2 wifi2gmac)"
+			mtk_facrory_write_mac Factory 4 "$wifi_mac"
+		fi
+		;;
+	xiaomi,mi-router-wr30u*)
+		wan_mac=$(mtd_get_mac_ascii Bdata ethaddr_wan)
+		lan_mac=$(mtd_get_mac_ascii Bdata ethaddr)
 		;;
 	*360,t7*)
 		local part=$(find_mtd_part "stock-factory")
@@ -112,6 +146,24 @@ mediatek_setup_macs()
 				fi
 			fi
 		fi
+		;;
+	*cetron,ct3003*)
+		lan_mac=$(mtd_get_mac_ascii art MAC_ADDRESS)
+		wan_mac=$(macaddr_add $lan_mac 3)
+		label_mac=$lan_mac
+		#if [ "$(mtk_factory_get_byte Factory 4 2)" = "00-0c" ]; then
+			local wifi_mac="$(macaddr_add $lan_mac 1)"
+			mtk_facrory_write_mac Factory 4 "$wifi_mac"
+		#fi
+		;;
+	*jcg,q30*)
+		wan_mac=$(mtd_get_mac_binary $part_name 0xa0024)
+		lan_mac=$(mtd_get_mac_binary $part_name 0xa002a)
+		label_mac=$lan_mac
+		;;
+	*)
+		wan_mac=$(mtd_get_mac_binary $part_name $wan_mac_offset)
+		lan_mac=$(mtd_get_mac_binary $part_name $lan_mac_offset)
 		;;
 	esac
 
