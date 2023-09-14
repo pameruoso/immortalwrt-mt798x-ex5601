@@ -300,8 +300,6 @@ void foe_clear_entry(struct neighbour *neigh)
 				*((u16 *)&h_dest[4]) =
 					swab16(entry->ipv4_hnapt.dmac_lo);
 				if (memcmp(h_dest, neigh->ha, ETH_ALEN) != 0) {
-					pr_info("%s: state=%d\n", __func__,
-						neigh->nud_state);
 					cr_set_field(hnat_priv->ppe_base[i] + PPE_TB_CFG,
 						     SMA, SMA_ONLY_FWD_CPU);
 
@@ -314,10 +312,13 @@ void foe_clear_entry(struct neighbour *neigh)
 
 					mod_timer(&hnat_priv->hnat_sma_build_entry_timer,
 						  jiffies + 3 * HZ);
-
-					pr_info("Delete old entry: dip =%pI4\n", &dip);
-					pr_info("Old mac= %pM\n", h_dest);
-					pr_info("New mac= %pM\n", neigh->ha);
+					if (debug_level >= 7) {
+						pr_info("%s: state=%d\n", __func__,
+							neigh->nud_state);
+						pr_info("Delete old entry: dip =%pI4\n", &dip);
+						pr_info("Old mac= %pM\n", h_dest);
+						pr_info("New mac= %pM\n", neigh->ha);
+					}
 				}
 			}
 		}
@@ -1297,7 +1298,7 @@ static unsigned int skb_to_hnat_info(struct sk_buff *skb,
 
 				entry.ipv4_hnapt.vlan1 = hw_path->vlan_id;
 
-				if (skb_vlan_tag_present(skb)) {
+				if (skb_vlan_tagged(skb)) {
 					entry.bfib1.vlan_layer += 1;
 
 					if (entry.ipv4_hnapt.vlan1)
@@ -1351,7 +1352,7 @@ static unsigned int skb_to_hnat_info(struct sk_buff *skb,
 
 			entry.ipv6_5t_route.vlan1 = hw_path->vlan_id;
 
-			if (skb_vlan_tag_present(skb)) {
+			if (skb_vlan_tagged(skb)) {
 				entry.bfib1.vlan_layer += 1;
 
 				if (entry.ipv6_5t_route.vlan1)
@@ -1568,7 +1569,7 @@ static unsigned int skb_to_hnat_info(struct sk_buff *skb,
 				 NR_GMAC2_PORT : NR_GMAC1_PORT;
 		else {
 			if (of_machine_is_compatible("glinet,gl-mt3000")||of_machine_is_compatible("glinet,mt3000-snand"))
-			gmac = NR_GMAC2_PORT;
+				gmac = NR_GMAC2_PORT;
 			else
 				gmac = NR_GMAC1_PORT;
 		}
@@ -1583,7 +1584,7 @@ static unsigned int skb_to_hnat_info(struct sk_buff *skb,
 			entry.ipv4_hnapt.act_dp = dev->ifindex;
 		} else {
 			if (of_machine_is_compatible("glinet,gl-mt3000")||of_machine_is_compatible("glinet,mt3000-snand"))
-			gmac = NR_GMAC1_PORT;
+				gmac = NR_GMAC1_PORT;
 			else
 				gmac = (IS_GMAC1_MODE) ? NR_GMAC1_PORT : NR_GMAC2_PORT;
 		}
@@ -1786,7 +1787,7 @@ int mtk_sw_nat_hook_tx(struct sk_buff *skb, int gmac_no)
 		break;
 	}
 
-	if (skb->vlan_tci) {
+	if (skb_vlan_tagged(skb)) {
 		bfib1_tx.vlan_layer = 1;
 		bfib1_tx.vpm = 1;
 		if (IS_IPV4_GRP(entry)) {

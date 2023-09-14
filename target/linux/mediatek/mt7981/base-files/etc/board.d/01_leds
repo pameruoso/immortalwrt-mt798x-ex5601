@@ -11,6 +11,16 @@ board=$(board_name)
 board_config_update
 
 case "$board" in
+clt,r30b1)
+	ucidef_set_led_default "green" "GREEN" "r30b1:green" "1"
+	ucidef_set_led_default "red" "RED" "r30b1:red" "0"
+	ucidef_set_led_netdev "blue" "BLUE" "r30b1:blue" "eth1"
+	;;
+imou,lc-hx3001)
+	ucidef_set_led_netdev "wan" "WAN" "green:wan" "eth1" "link"
+	ucidef_set_led_netdev "lan" "LAN" "green:lan" "eth0" "link"
+	ucidef_set_led_netdev "wlan" "WLAN" "green:wlan" "rax0" "link"
+	;;
 livinet,zr-3020)
 	ucidef_set_led_netdev "internet" "INTERNET" "blue:internet" "eth1"
 	ucidef_set_led_netdev "wlan2g" "WLAN2G" "blue:wlan2g" "ra0" "link"
@@ -22,6 +32,13 @@ xiaomi,mi-router-wr30u*)
 *360,t7*)
 	ucidef_set_led_default "green" "GREEN" "360t7:green" "1"
 	ucidef_set_led_default "red" "RED" "360t7:red" "0"
+	;;
+h3c,nx30pro)
+	ucidef_set_led_default "green" "GREEN" "nx30pro:green" "1"
+	ucidef_set_led_default "red" "RED" "nx30pro:red" "0"
+	;;
+konka,komi-a31)
+        ucidef_set_led_netdev "blue" "BLUE" "blue:status" "eth1" "link"
 	;;
 esac
 
